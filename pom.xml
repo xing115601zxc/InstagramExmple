@@ -55,6 +55,18 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.11</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/net.sourceforge.htmlunit/htmlunit -->
+    <dependency>
+      <groupId>net.sourceforge.htmlunit</groupId>
+      <artifactId>htmlunit</artifactId>
+      <version>2.50.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.25</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -101,5 +113,23 @@
         </plugin>
       </plugins>
     </pluginManagement>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>8</source>
+                  <target>8</target>
+              </configuration>
+          </plugin>
+      </plugins>
+    <resources>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mappers.InstagramMapper">
+    <resultMap type="InstagramPage" id="InstagramPage">
+        <id column="id" property="id"></id>
+        <result column="shortcode" property="shortcode"/>
+        <result column="account" property="account"/>
+        <result column="full_name" property="full_name"/>
+        <result column="title" property="title"/>
+        <result column="text" property="text"/>
+        <result column="__typename" property="__typename"/>
+        <result column="date" property="date"/>
+    </resultMap>
+
+    <insert id="addInstagramContent">
+        insert into instageamlink(id, title, url, text, `date`)
+        values (${id}, '${title}', '${url}', '${text}', '${date}');
+    </insert>
+    <insert id="addInstagramList" parameterType="InstagramPage">
+        insert into instageamlink(id , shortcode ,account , full_name, title,text, __typename, `date`)
+        values ('${id}', '${shortcode}', '${account}', '${full_name}', '${title}', '${text}', '${ __typename}', '${date}');
+    </insert>
+    <select id="getPagelink" resultMap="InstagramPage" parameterType="String" resultType="collection">
+        select * from instageamlink where `date`>=#{datetime} order by `date` DESC;
+    </select>
+    <select id="existPagelink" parameterType="int" resultType="Boolean">
+        select if(COUNT(1)=1,TRUE,FALSE) from instageamlink where id = #{id} LIMIT 1
+    </select>
+    <select id="existPagecontent" parameterType="int" resultType="Boolean">
+        select if(COUNT(1)=1,TRUE,FALSE) from instageamlink where id = #{id} LIMIT 1
+    </select>
+</mapper>
