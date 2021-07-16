@@ -9,9 +9,6 @@ import entity.InstagramPage;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
-import java.net.Proxy;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,13 +26,15 @@ public class InstagramUtil {
     public JsonObject user;
     public JsonArray edges;
     public JsonArray IGTVedges;
+    public long lastDate;
     public  int count;
     public  int IGTVcount;
     public JsonObject variables=new JsonObject();
     public  boolean has_next_page;
     public  String content;
     public  String query_hash;
-    public static ArrayList<String> proxyList = UsefulProxyUtil.getProxyList();
+    public UsefulProxyUtil proxyUtil = new UsefulProxyUtil();
+    public ArrayList<String> proxyList = proxyUtil.getProxyList();
 
 //    {
 //        try {
@@ -58,11 +57,12 @@ public class InstagramUtil {
         StringBuffer insBuffer = new StringBuffer("https://www.instagram.com/");
 
         try {
-            Map<String, String> cookies = new HashMap<>();
-            cookies.put("ds_user_id","26112800489");
-            cookies.put("sessionid","26112800489%3A05sthAcR0OyGGA%3A23");
+//            Map<String, String> cookies = new HashMap<>();
+//            cookies.put("ds_user_id","26112800489");
+//            cookies.put("sessionid","26112800489%3A05sthAcR0OyGGA%3A23");
+            proxyUtil.setProxy(proxyList);
             html = Jsoup.connect(insBuffer.insert(insBuffer.length(),account).toString())
-                            .cookies(cookies)
+//                            .cookies(cookies)
                             .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
                             .get().html();
 
@@ -94,10 +94,12 @@ public class InstagramUtil {
                 has_next_page = page_info.get("has_next_page").getAsBoolean();
                 count=edge_owner_to_timeline_media.get("count").getAsInt();
                 IGTVcount=edge_felix_video_timeline.get("count").getAsInt();
+                System.out.println(edges);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+            getFirstList(account);
         }
 
     }
@@ -148,34 +150,23 @@ public class InstagramUtil {
     }
     public ArrayList<InstagramPage> getNextList(){
         try {
-            System.out.println("https://www.instagram.com/graphql/query/?query_hash="+query_hash+"&variables="+variables);
-//            String json = Jsoup.connect("https://www.instagram.com/graphql/query/?query_hash="+query_hash+"&variables="+variables).ignoreContentType(true)
-//                        .proxy("218.32.46.153", 32769).validateTLSCertificates(false).get().text();
+            proxyUtil.setProxy(proxyList);
             String json = Jsoup.connect("https://www.instagram.com/graphql/query/?query_hash="+query_hash+"&variables="+variables).ignoreContentType(true)
-                        .get().text();
-//            String json = Jsoup.connect("https://www.instagram.com/graphql/query/?query_hash=ea4baf885b60cbf664b34ee760397549&variables=%7B%22id%22%3A%222929997249%22%2C%22first%22%3A12%2C%22after%22%3A%22QVFDWGtpSk1jZ2dlMnUyOWswdGVUMUZTMVdqWWRZNkZpc2NmTTNhZnZISWVaWHd4OERRUmVFQU05Zzlqb2ZQYVVrYTNaV2JNOWdXWW1XSFRFM1FjaDl5YQ%3D%3D%22%7D").ignoreContentType(true).get().text();
-            try {
-                String proxy = proxyList.get((int) (proxyList.size() * Math.random()));
-                String[] ipPort = proxy.split(":");
-                System.getProperties().setProperty("proxySet", "true");
-                System.getProperties().setProperty("http.proxyHost", ipPort[0]);
-                System.getProperties().setProperty("http.proxyPort", ipPort[1]);
-                System.out.println("需要登入");
-                JsonObject jsonObject=new JsonParser().parse(json).getAsJsonObject();
-            }catch (JsonSyntaxException e){
-                Map<String, String> cookies = new HashMap<>();
-                cookies.put("ds_user_id","26112800489");
-                cookies.put("sessionid","26112800489%3A05sthAcR0OyGGA%3A23");
-                String proxy = proxyList.get((int) (proxyList.size() * Math.random()));
-                String[] ipPort = proxy.split(":");
-                System.getProperties().setProperty("proxySet", "true");
-                System.getProperties().setProperty("http.proxyHost", ipPort[0]);
-                System.getProperties().setProperty("http.proxyPort", ipPort[1]);
-                System.out.println("需要登入");
-                json = Jsoup.connect("https://www.instagram.com/graphql/query/?query_hash="+query_hash+"&variables="+variables).ignoreContentType(true)
-                        .cookies(cookies)
                         .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
                         .get().text();
+            try {
+                JsonObject jsonObject=new JsonParser().parse(json).getAsJsonObject();
+            }catch (JsonSyntaxException e){
+//                Map<String, String> cookies = new HashMap<>();
+//                cookies.put("ds_user_id","26112800489");
+//                cookies.put("sessionid","26112800489%3A05sthAcR0OyGGA%3A23");
+                System.out.println("需要登入");
+//                proxyUtil.setProxy(proxyList);
+//                json = Jsoup.connect("https://www.instagram.com/graphql/query/?query_hash="+query_hash+"&variables="+variables).ignoreContentType(true)
+//                        .cookies(cookies)
+//                        .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+//                        .get().text();
+                this.getNextList();
             }
 
             JsonObject jsonObject=new JsonParser().parse(json).getAsJsonObject();
@@ -207,6 +198,7 @@ public class InstagramUtil {
                                 simpleDateFormat.format(nodeObject.get("taken_at_timestamp").getAsInt()*1000L)
 
                         );
+                        this.lastDate = nodeObject.get("taken_at_timestamp").getAsInt()*1000L;
 
 //                    System.out.println(instagramPage.getProduct_type());
 //                    System.out.println(instagramPage.getAccount());
@@ -258,7 +250,7 @@ public class InstagramUtil {
 //            util.getNextList();
 //        }
 
-        util.getNextList();
+//        util.getNextList();
 //        util.getList(new JsonParser().parse(util.content).getAsJsonArray() );
     }
 }
