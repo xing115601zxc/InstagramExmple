@@ -119,7 +119,7 @@ public class InstagramUtil {
                     JsonObject edge_media_to_caption=nodeObject.get("edge_media_to_caption").getAsJsonObject();
 
                     instagramPage.setText(edge_media_to_caption.get("edges").getAsJsonArray().get(0)
-                                .getAsJsonObject().getAsJsonObject("node").get("text").getAsString().replaceAll("'","\\\'"));
+                                .getAsJsonObject().getAsJsonObject("node").get("text").getAsString().replaceAll("'","\\\\'"));
                     instagramPage.set__typename(nodeObject.get("__typename").getAsString());
                     instagramPage.setId(nodeObject.get("id").getAsString());
                     try {
@@ -195,7 +195,7 @@ public class InstagramUtil {
                         JsonObject edge_media_to_caption=nodeObject.get("edge_media_to_caption").getAsJsonObject();
 
                         instagramPage.setText(edge_media_to_caption.get("edges").getAsJsonArray().get(0)
-                                .getAsJsonObject().getAsJsonObject("node").get("text").getAsString().replaceAll("'","\\\'"));
+                                .getAsJsonObject().getAsJsonObject("node").get("text").getAsString().replaceAll("'","\\\\'"));
                         instagramPage.set__typename(nodeObject.get("__typename").getAsString());
                         instagramPage.setId(nodeObject.get("id").getAsString());
                         try {
@@ -252,7 +252,7 @@ public class InstagramUtil {
     public static void main(String[] args) throws IOException {
         InstagramUtil util= new InstagramUtil();
 //
-//        util.getFirstList("lovetaipeizoo");
+        util.getFirstList("lovetaipeizoo");
 //        util.getList(util.edges);
 //        if(util.has_next_page){
 //            util.getNextList();

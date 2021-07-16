@@ -32,10 +32,8 @@ public class SqlSessionUtil {
     }
 
     public static void main(String[] args) {
-        long l=1626155176;
-        Date date=new Date();
-        date.setTime(l*1000l);
-        System.out.println(date);
-//        System.out.println(date.getTime());
+        String l="Happy Valentine's Day";
+//        l = l.replaceAll("'","\\'");
+        System.out.println(l.replaceAll("'","\\\\'"));
     }
 }
